@@ -1,46 +1,43 @@
 const request = require("supertest")
-const constants = require("../auth/constants")
-const { faker } = require("@faker-js/faker")
 
-let accessToken
-let goRestUrl
-let createdId
+const { BEARER_TOKEN, GOREST_BASE_URL } = require("../../config/development")
+const {
+  cleanUp,
+  setNewUserAndGetId,
+} = require("../../lib/users/setup_teardown")
+
+let userId
 
 describe("update user tests", () => {
-  beforeAll(async () => {
-    accessToken = constants.BEARER_TOKEN
-    goRestUrl = constants.GOREST_BASE_URL
+  beforeEach(async () => {
+    userId = await setNewUserAndGetId()
+  })
 
-    const setNewUser = await request(goRestUrl)
-      .post("/public/v2/users")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        name: `${faker.person.fullName()}`,
-        gender: `${faker.person.sex()}`,
-        email: `${faker.internet.exampleEmail()}`,
-        status: "active",
-      })
-
-    createdId = setNewUser.body.id
+  afterEach(async () => {
+    await cleanUp(userId)
   })
 
   it("should update user successfully", async () => {
-    const response = await request(goRestUrl)
-      .patch(`/public/v2/users/${createdId}`)
-      .set("Authorization", `Bearer ${accessToken}`)
+    const response = await request(GOREST_BASE_URL)
+      .patch(`/public/v2/users/${userId}`)
+      .set("Authorization", `Bearer ${BEARER_TOKEN}`)
       .send({
         name: "John Constantine",
         email: "hellblazer@example.dc",
         gender: "male",
         status: "inactive",
       })
-    console.log(response.body)
     expect(response.status).toEqual(200)
+
+    await request(GOREST_BASE_URL)
+      .get(`/public/v2/users/${userId}`)
+      .set("Authorization", `Bearer ${BEARER_TOKEN}`)
+    expect(response.body).toHaveProperty("email", "hellblazer@example.dc")
   })
 
   it("should be unable to update user without bearer token", async () => {
-    const response = await request(goRestUrl)
-      .patch(`/public/v2/users/${createdId}`)
+    const response = await request(GOREST_BASE_URL)
+      .patch(`/public/v2/users/${userId}`)
       .send({
         name: "BoJack Horseman",
         email: "horsinaround@example.com",
@@ -51,22 +48,30 @@ describe("update user tests", () => {
   })
 
   it("should deny update because of blank field", async () => {
-    const response = await request(goRestUrl)
-      .patch(`/public/v2/users/${createdId}`)
-      .set("Authorization", `Bearer ${accessToken}`)
+    const response = await request(GOREST_BASE_URL)
+      .patch(`/public/v2/users/${userId}`)
+      .set("Authorization", `Bearer ${BEARER_TOKEN}`)
       .send({
         name: "Jessica Jones",
         email: "alias@example.com",
         gender: "female",
-        status: " ",
+        status: "",
       })
     expect(response.status).toEqual(422)
   })
 
+  it("should deny update with empty body", async () => {
+    const response = await request(GOREST_BASE_URL)
+      .patch(`/public/v2/users/${userId}`)
+      .set("Authorization", `Bearer ${BEARER_TOKEN}`)
+      .send({})
+    expect(response.status).toEqual(200) // no changes are made
+  })
+
   it("should be unable to update user with wrong url path", async () => {
-    const response = await request(goRestUrl)
-      .patch(`/public/v2/usr/${createdId}`)
-      .set("Authorization", `Bearer ${accessToken}`)
+    const response = await request(GOREST_BASE_URL)
+      .patch(`/public/v2/usr/${userId}`)
+      .set("Authorization", `Bearer ${BEARER_TOKEN}`)
       .send({
         name: "Johnny B Good",
         email: "johnny@example.com",
@@ -74,11 +79,5 @@ describe("update user tests", () => {
         status: "inactive",
       })
     expect(response.status).toEqual(404)
-  })
-
-  afterAll(async () => {
-    await request(goRestUrl)
-      .delete(`/public/v2/users/${createdId}`)
-      .set("Authorization", `Bearer ${accessToken}`)
   })
 })

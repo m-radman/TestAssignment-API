@@ -1,53 +1,41 @@
 const request = require("supertest")
-const constants = require("../auth/constants")
 const { faker } = require("@faker-js/faker")
 
-let accessToken
-let goRestUrl
-let createdId
+const { BEARER_TOKEN, GOREST_BASE_URL } = require("../../config/development")
+const {
+  cleanUp,
+  setNewUserAndGetId,
+} = require("../../lib/users/setup_teardown")
+
+let userId
 
 describe("update user tests", () => {
-  beforeAll(async () => {
-    accessToken = constants.BEARER_TOKEN
-    goRestUrl = constants.GOREST_BASE_URL
+  beforeEach(async () => {
+    userId = await setNewUserAndGetId()
+  })
 
-    const setNewUser = await request(goRestUrl)
-      .post("/public/v2/users")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        name: `${faker.person.fullName()}`,
-        gender: `${faker.person.sex()}`,
-        email: `${faker.internet.exampleEmail()}`,
-        status: "active",
-      })
-
-    createdId = setNewUser.body.id
+  afterEach(async () => {
+    await cleanUp(userId)
   })
 
   it("should delete user successfully", async () => {
-    const response = await request(goRestUrl)
-      .delete(`/public/v2/users/${createdId}`)
-      .set("Authorization", `Bearer ${accessToken}`)
+    const response = await request(GOREST_BASE_URL)
+      .delete(`/public/v2/users/${userId}`)
+      .set("Authorization", `Bearer ${BEARER_TOKEN}`)
     expect(response.status).toEqual(204)
   })
 
   it("should not be able to delete user without bearer token", async () => {
-    const response = await request(goRestUrl).delete(
-      `/public/v2/users/${createdId}`
+    const response = await request(GOREST_BASE_URL).delete(
+      `/public/v2/users/${userId}`
     )
     expect(response.status).toEqual(404) // 404 because you can't found created users while unauthenticated
   })
 
   it("should not be able to delete user with invalid url path", async () => {
-    const response = await request(goRestUrl)
-      .delete(`/public/v2/usrs/${createdId}`)
-      .set("Authorization", `Bearer ${accessToken}`)
+    const response = await request(GOREST_BASE_URL)
+      .delete(`/public/v2/usrs/${userId}`)
+      .set("Authorization", `Bearer ${BEARER_TOKEN}`)
     expect(response.status).toEqual(404)
-  })
-
-  afterAll(async () => {
-    await request(goRestUrl)
-      .delete(`/public/v2/users/${createdId}`)
-      .set("Authorization", `Bearer ${accessToken}`)
   })
 })
