@@ -53,6 +53,31 @@ describe("create user tests", () => {
     expect(response.status).toEqual(401)
   })
 
+  it("should be unable to create new user with some of fields left missing", async () => {
+    const response = await request(goRestUrl)
+      .post("/public/v2/users")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        name: `${faker.person.fullName()}`,
+        gender: `${faker.person.sex()}`,
+        email: `${faker.internet.exampleEmail()}`,
+      })
+    expect(response.status).toEqual(422)
+  })
+
+  it("should be unable to create new user with wrong url path", async () => {
+    const response = await request(goRestUrl)
+      .post("/public/v2/usrs")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        name: `${faker.person.fullName()}`,
+        gender: `${faker.person.sex()}`,
+        email: `${faker.internet.exampleEmail()}`,
+        status: "active",
+      })
+    expect(response.status).toEqual(404)
+  })
+
   afterAll(async () => {
     await request(goRestUrl)
       .delete(`/public/v2/users/${createdId}`)
