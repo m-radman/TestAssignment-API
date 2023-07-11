@@ -1,16 +1,13 @@
 const request = require("supertest")
 
 const { BEARER_TOKEN, GOREST_BASE_URL } = require("../../config/development")
-const {
-  cleanUp,
-  setNewUserAndGetId,
-} = require("../../lib/users/setup_teardown")
+const { cleanUp, createNewUser } = require("../../lib/users/setup_teardown")
 
 let userId
 
 describe("update user tests", () => {
   beforeEach(async () => {
-    userId = await setNewUserAndGetId()
+    userId = await createNewUser()
   })
 
   afterEach(async () => {
@@ -18,7 +15,7 @@ describe("update user tests", () => {
   })
 
   it("should update user successfully", async () => {
-    const response = await request(GOREST_BASE_URL)
+    const responseFromUpdate = await request(GOREST_BASE_URL)
       .patch(`/public/v2/users/${userId}`)
       .set("Authorization", `Bearer ${BEARER_TOKEN}`)
       .send({
@@ -27,12 +24,15 @@ describe("update user tests", () => {
         gender: "male",
         status: "inactive",
       })
-    expect(response.status).toEqual(200)
+    expect(responseFromUpdate.status).toEqual(200)
 
-    await request(GOREST_BASE_URL)
+    const responseFromGet = await request(GOREST_BASE_URL)
       .get(`/public/v2/users/${userId}`)
       .set("Authorization", `Bearer ${BEARER_TOKEN}`)
-    expect(response.body).toHaveProperty("email", "hellblazer@example.dc")
+    expect(responseFromGet.body).toHaveProperty(
+      "email",
+      "hellblazer@example.dc"
+    )
   })
 
   it("should be unable to update user without bearer token", async () => {
@@ -44,7 +44,9 @@ describe("update user tests", () => {
         gender: "male",
         status: "inactive",
       })
-    expect(response.status).toEqual(404) // 404 because you can't found created user while unauthenticated
+    expect(response.status).toEqual(404)
+    // 404 because you can't found created user witout authenticating first
+    // should be 401?
   })
 
   it("should deny update because of blank field", async () => {
@@ -57,7 +59,7 @@ describe("update user tests", () => {
         gender: "female",
         status: "",
       })
-    expect(response.status).toEqual(422)
+    expect(response.status).toEqual(422) // 422 Unprocessible Entity
   })
 
   it("should deny update with empty body", async () => {
@@ -65,7 +67,9 @@ describe("update user tests", () => {
       .patch(`/public/v2/users/${userId}`)
       .set("Authorization", `Bearer ${BEARER_TOKEN}`)
       .send({})
-    expect(response.status).toEqual(200) // no changes are made
+    expect(response.status).toEqual(200)
+    // 200 OK no changes are made
+    // could be 204 Not modified?
   })
 
   it("should be unable to update user with wrong url path", async () => {
@@ -78,6 +82,6 @@ describe("update user tests", () => {
         gender: "male",
         status: "inactive",
       })
-    expect(response.status).toEqual(404)
+    expect(response.status).toEqual(404) // 404 Not found
   })
 })
