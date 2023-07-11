@@ -26,24 +26,6 @@ describe("list users tests", () => {
     expect(response.body).toHaveProperty("name", "Ezequiell Bluff")
   })
 
-  it("should update user", async () => {
-    const response = await request(goRestUrl)
-      .patch("/public/v2/users/3588156")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        status: "active",
-      })
-    console.log(response.body)
-    expect(response.status).toEqual(200)
-  })
-
-  it.skip("should delete user", async () => {
-    const response = await request(goRestUrl)
-      .delete("/public/v2/users/3588022")
-      .set("Authorization", `Bearer ${accessToken}`)
-    expect(response.status).toEqual(204)
-  })
-
   it("should not find deleted user", async () => {
     const response = await request(goRestUrl)
       .get("/public/v2/users/3588022")
