@@ -1,0 +1,15 @@
+{
+  "name": "testassignment",
+  "version": "1.0.0",
+  "description": "test_assignment",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "mradman",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.6.1",
+    "supertest": "^6.3.3"
+  }
+}
