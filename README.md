@@ -11,6 +11,12 @@ The first one is delivered using SuperTest, module for HTTP testing, and Jest te
 
 ---
 
+### Where to find code
+
+To see how tests are implemented go [here](https://github.com/m-radman/TestAssignment-API/tree/master/tests/users)
+
+---
+
 ### How to run tests
 
 For running tests you need to take next steps:
