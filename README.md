@@ -14,7 +14,7 @@ And the second is done using the Postman API platform and Newman, a command-line
 
 ### Where to find code
 
-To see how tests are implemented go [here](https://github.com/m-radman/TestAssignment-API/tree/master/tests/users)
+To see how tests are implemented go [here](https://github.com/m-radman/TestAssignment-API/tree/master/tests/users).
 
 ---
 
