@@ -16,7 +16,7 @@ The first one is delivered using SuperTest, module for HTTP testing, and Jest te
 For running tests you need to take next steps:
 
 1. Clone this repository to your local machine.
-2. Install dependecies using `npm install`
+2. Install dependencies using `npm install`
 3. Run tests using these commands:
    - To run all tests use `npm run test`
    - To run _CREATE_ tests use `npm run create.test`
