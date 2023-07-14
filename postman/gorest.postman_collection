@@ -447,7 +447,7 @@
 									"\r",
 									"pm.test(\"Verify there is no change\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.name).to.eql(\"Jagmeet Varma\");\r",
+									"    pm.expect(jsonData.name).to.eql(\"Stella Stehr\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -476,7 +476,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/public/v2/users/3614595",
+							"raw": "{{baseUrl}}/public/v2/users/3637933",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -484,7 +484,7 @@
 								"public",
 								"v2",
 								"users",
-								"3614595"
+								"3637933"
 							]
 						}
 					},

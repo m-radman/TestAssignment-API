@@ -4,7 +4,11 @@
   "description": "test_assignment",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "create.test": "jest create_user.test.js",
+    "update.test": "jest update_user.test.js",
+    "delete.test": "jest delete_user.test.js",
+    "postman.test": "newman run  postman/gorest.postman_collection"
   },
   "author": "mradman",
   "license": "ISC",
